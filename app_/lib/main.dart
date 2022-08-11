@@ -5,6 +5,9 @@ import 'package:intl/intl.dart';
 // Controller
 import './controller/getX_controller.dart';
 
+// root page
+import './pages/pos_mode/00.root.dart';
+
 void main() {
   runApp(GetMaterialApp(home: MyApp(),));
 }
@@ -17,15 +20,17 @@ class MyApp extends StatefulWidget {
 }
 
 class _MainPage extends State<MyApp> {
-  final _getController = Get.put(GetController());
+  final AppController = Get.put(GetController());
 
   @override
   Widget build(BuildContext context) {
     //Future Builder든 뭐든 사용해야함
     return Obx(() { 
-          if (_getController.isInitialized.value) {
-            return Center(child: Text('Initialization Success.'));
+          print(AppController.isInitialized.value);
+          if (AppController.isInitialized.value) {
+            return PosRoot_Page();
           } else {
+            print('running');
             return _Initializing();
           }
         }
