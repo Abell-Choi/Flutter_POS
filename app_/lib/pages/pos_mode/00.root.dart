@@ -220,9 +220,12 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                           Colors.lightBlue[300]
                         )
                       ),
+
+                      //결제 버튼
                       onPressed: () async {
-                        var c = await FileManager().getGoodsDB();
-                        print(c.length);
+                        int? payRes = await Get.to(()=>PayMentPage(), arguments: this._calcResult);
+                        payRes ??= -2;
+                        if (payRes! >= 1){ this._clearItems(); return;}
                       },
                       child: Text(
                         "결제 하기",

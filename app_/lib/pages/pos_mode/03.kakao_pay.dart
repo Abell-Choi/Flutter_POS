@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class KakaoPay_Page extends StatelessWidget {
 
+  NumberFormat f = NumberFormat('###,###,###,###');
   Size size = Size(0,0);
 
   @override
@@ -17,7 +19,7 @@ class KakaoPay_Page extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: [
-            SizedBox(height: size.height *.1,),
+            SizedBox(height: size.height *.05,),
             Container(
               height: size.height *.15,
               child: Image.network(
@@ -32,8 +34,16 @@ class KakaoPay_Page extends StatelessWidget {
                 fit: BoxFit.fill,  
               ),
             ),
-            SizedBox(
-              height: size.height *.05,
+            Container(
+              height: size.height *.1,
+              alignment: Alignment.center,
+              child: Text(
+                '결제 금액 : ${f.format(Get.arguments['calcPrice'])}',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold
+                ),
+              ),
             ),
             Expanded(
               child: Column(
