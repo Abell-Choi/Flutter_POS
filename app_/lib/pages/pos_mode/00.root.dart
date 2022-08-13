@@ -37,7 +37,18 @@ class _PosRootPage_State extends State<PosRoot_Page> {
     this._selectedItems.clear();
     this.uuid = Uuid().v4();
     print ('new uuid created -> ${this.uuid}');
+    setState(() {});
     return;
+  }
+
+  int _getItemCodeToNum(int code){
+    for (int i = 0 ; i < this._selectedItems.length ; i++){
+      if (code == this._selectedItems[i].code){
+        return i;
+      }
+    }
+
+    return -1;
   }
   
   Future<Map<String, dynamic>> _addItem(int code) async {
@@ -62,8 +73,12 @@ class _PosRootPage_State extends State<PosRoot_Page> {
   }
 
   Future<Map<String, dynamic>> _delItem(int itemCode) async{
-    //구매 항목 제거
-    return {};
+    int arrayNum = this._getItemCodeToNum(itemCode);
+    if (arrayNum == -1){ return {'res' : 'err', 'value' : 'some err'};}
+    this._selectedItems.removeAt(arrayNum);
+    setState(() { });
+
+    return {'res' : 'ok', 'value' : 'del from $arrayNum'};
   }
   
   Future<Map<String, dynamic>> _setCountItem(int itemCode, int count) async{
@@ -163,7 +178,12 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                     (){
                       int code = target.code;
                       print(code);
-                      GetSnackBar(title: 'test',message: 'test',duration: Duration(seconds: 2),).show();
+                      //GetSnackBar(title: 'test',message: 'test',duration: Duration(seconds: 2),).show();
+                    },
+                    (){
+                      int code = target.code;
+                      print('asdf');
+                      Get.dialog(this._ListTileDialog(code));
                     }
                   );
                 },
@@ -187,6 +207,7 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                       _calcResult['subTitleCount'], 
                       _calcResult['calcPrice'], 
                       _calcResult['barcode'],
+                      (){},
                       (){}
                     ),
                   ),
@@ -219,6 +240,29 @@ class _PosRootPage_State extends State<PosRoot_Page> {
           ],
         ),
       ),
+    );
+  }
+
+  //Dialog
+  Widget _ListTileDialog(int code){
+    return AlertDialog(
+      title: Text('항목 삭제'),
+      content: Text("정말로 ${this.AppController.getGoodsData(code)!.name}\n항목을 삭제하시겠습니까?"),
+      actions: [
+        TextButton(
+          child: Text('삭제'),
+          onPressed: (){
+            this._delItem(code);
+            Get.back(result: true);
+          },
+        ),
+        TextButton(
+          child: Text('닫기'),
+          onPressed: (){
+            Get.back(result: false);
+          },
+        )
+      ],
     );
   }
 }
@@ -265,7 +309,8 @@ class ListTileWidget{
     Widget title,
     Widget subTitle,
     Widget trailing,
-    Function onTap
+    Function onTap,
+    Function onLongPress
   ){
     return Card(
       child: ListTile(
@@ -274,14 +319,16 @@ class ListTileWidget{
         subtitle: subTitle,
         trailing: trailing,
         onTap: () => onTap,
+        onLongPress: () => onLongPress,
       ),
     );
   }
 
-  Widget getItemTile(Widget icon, String name, int count, int allPrice, String uid, Function onTap){
+  Widget getItemTile(Widget icon, String name, int count, int allPrice, String uid, Function onTap, Function onLongPress){
     return Card(
       child: ListTile(
         onTap: ()=>onTap(),
+        onLongPress: ()=> onLongPress(),
         leading: icon,
         title: Text(name),
         subtitle: Row(
