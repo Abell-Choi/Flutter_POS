@@ -17,6 +17,8 @@ class PosRoot_Page extends StatefulWidget {
 }
 
 class _PosRootPage_State extends State<PosRoot_Page> {
+  final AppController = Get.put(GetController());
+  
   Size size = Size(0,0);
   ListTileWidget? _listTileWidget;
   TextEditingController _textEditingController = TextEditingController();
@@ -31,7 +33,7 @@ class _PosRootPage_State extends State<PosRoot_Page> {
     return;
   }
   
-  Future<Map<String, dynamic>> _addItem() async {
+  Future<Map<String, dynamic>> _addItem(int code) async {
     // 구매 항목 추가
     return {};
   }
@@ -82,9 +84,16 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                   child: TextField(
                     controller: _textEditingController,
                     onChanged: (value){
-                      if (value.length >=6 ){
-                        _textEditingController.clear();
+                      if (value.length < 6){
+                        return;
                       }
+                      
+                      int? parse = int.tryParse(value);
+                      if (parse == null) { 
+                        //int error
+                      }
+
+                      _addItem(parse!);
                     },
                     keyboardType: TextInputType.number,
                     autofocus: true,

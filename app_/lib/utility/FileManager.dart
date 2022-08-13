@@ -101,6 +101,22 @@ class FileManager{
     
   }
 
+  Future<Map<String, dynamic>> overwrittingGoodsData(List<GoodsPreset> datas) async {
+    Map<String, dynamic> _mapTemp = {};
+    for (var i in datas){
+      _mapTemp.addAll(i.getMapData());
+    }
+
+    String jsonString = jsonEncode(_mapTemp);
+    
+    if (this._appdataPath == null) await _updateAppPath();
+
+    File f = await File("${this._appdataPath}${this.goodsDBFileName}");
+    if (!f.existsSync()) { f.createSync(); }
+    f.writeAsStringSync(jsonString);
+    return {'res' : 'ok', 'value' : 'overwrite data'};
+  }
+
   test(){
     print(GoodsPreset().getMapData().toString());
   }
