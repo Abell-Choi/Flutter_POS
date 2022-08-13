@@ -72,7 +72,8 @@ class _PosRootPage_State extends State<PosRoot_Page> {
             // calc result, pay
             Container(
               height: size.height *.2,
-              color: Colors.blue[100],
+              color: Colors.red[100],
+              width: size.width,
               child: Column(
                 children: [
                   ElevatedButton(
@@ -96,7 +97,15 @@ class ListTileWidget{
   Widget getTest(){
     return Card(
       child: ListTile(
-        onTap: (){ GetSnackBar(title: "test list view", message: 'hi',duration: Duration(seconds: 10), snackPosition: SnackPosition.TOP,).show();},
+        onTap: (){ 
+          GetSnackBar(
+            title: "test list view", 
+            message: 'hi',
+            duration: Duration(seconds: 10), 
+            snackPosition: SnackPosition.TOP,
+
+            ).show();
+          },
         leading: Icon(Icons.read_more),
         title: Text('Test ListTile Widget'),
         subtitle: Row(
