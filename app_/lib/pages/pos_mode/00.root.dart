@@ -24,6 +24,13 @@ class _PosRootPage_State extends State<PosRoot_Page> {
   TextEditingController _textEditingController = TextEditingController();
   String uuid = '';
   List<GoodsPreset> _selectedItems = [];
+  Map<String, dynamic> _calcResult = {
+    'title' : '전체 가격',
+    'subTitleStr' : '총 수량',
+    'subTitleCount' : 0,
+    'barcode' : 'uid',//need fix that
+    'calcPrice' : 0
+  };
 
   // working methods
   void _clearItems(){
@@ -44,6 +51,7 @@ class _PosRootPage_State extends State<PosRoot_Page> {
     for (var i in this._selectedItems){
       if (i.code == code){
         i.count ++;
+        setState(() {});
         return {'res' : 'ok', 'value' : 'add count for ${code}'};
       }
     }
@@ -68,6 +76,20 @@ class _PosRootPage_State extends State<PosRoot_Page> {
   void initState() {
     super.initState();
     _clearItems();
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+    int count = 0;
+    int price = 0;
+    for (var i in this._selectedItems){
+      count = count + i.count;
+      price = price + (i.count * i.price);
+    }
+
+    this._calcResult['subTitleCount'] = count;
+    this._calcResult['calcPrice'] = price;
   }
 
   @override
@@ -106,6 +128,7 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                       int? parse = int.tryParse(value);
                       if (parse == null) { 
                         //int error
+                        return;
                       }
 
                       _addItem(parse!);
@@ -155,10 +178,10 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                       size
                     ).getItemTile(
                       Icon(Icons.abc), 
-                      '총 수량', 
-                      100, 
-                      25600, 
-                      'iiiiii'
+                      _calcResult['title'], 
+                      _calcResult['subTitleCount'], 
+                      _calcResult['calcPrice'], 
+                      _calcResult['barcode']
                     ),
                   ),
                   Container(
