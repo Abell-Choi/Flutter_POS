@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:intl/intl.dart'; 
 class OptionData{
 }
@@ -13,12 +15,14 @@ class GoodsPreset{
   int code;
   String name;
   int count;
+  int price;
 
   GoodsPreset({
     this.updateTime = null,
     this.code = -1,
     this.name = 'test',
-    this.count = 1
+    this.count = 1,
+    this.price = 1000
   }){
     this.updateTime ??= DateTime.now();
   }
@@ -30,6 +34,7 @@ class GoodsPreset{
         'code' : this.code,
         'name' : this.name,
         'count' : this.count,
+        'price' : this.price
       }
     };
   }
@@ -39,5 +44,6 @@ class GoodsPreset{
     this.code = data['code'];
     this.name = data['name'];
     this.count = data['count'];
+    this.price = data['price'];
   }
 }

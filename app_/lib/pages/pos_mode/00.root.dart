@@ -34,6 +34,11 @@ class _PosRootPage_State extends State<PosRoot_Page> {
   }
   
   Future<Map<String, dynamic>> _addItem(int code) async {
+    GoodsPreset? _preset = AppController.getGoodsData(code);
+    if (_preset == null) {
+      //no code data err
+      return {'res' : 'err', 'value' : 'no Code Data'};
+    }
     // 구매 항목 추가
     return {};
   }
