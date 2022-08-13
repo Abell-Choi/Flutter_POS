@@ -1,6 +1,9 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
+// custom calsses
+import '../utility/Constructor.dart';
+
 class GetController extends GetxService {
   static GetController get to => Get.find();
   final isInitialized = false.obs;

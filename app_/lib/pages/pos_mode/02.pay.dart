@@ -18,6 +18,7 @@ class _PayMentPageState extends State<PayMentPage> {
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
     return Scaffold(
+      backgroundColor: Colors.blue[100],
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

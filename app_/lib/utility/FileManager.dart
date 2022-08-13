@@ -3,6 +3,9 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart'; 
 
+//custom classes
+import './Constructor.dart';
+
 
 class FileManager{
   String? _appdataPath;
@@ -44,6 +47,56 @@ class FileManager{
     return this._returnPreset('ok', 'file save done');
   }
 
+  // goods data
+  Future<Map<String, dynamic>> getGoodsDB() async {
+    if (this._appdataPath==null) await _updateAppPath();
+    // read data
+    File f = await File("${this._appdataPath}${this.goodsDBFileName}");
+    if (!f.existsSync()) { 
+      f.createSync();
+      f.writeAsStringSync(jsonEncode(GoodsPreset().getMapData())); 
+    }
+    print(f.readAsStringSync());
+    return {};
+  }
+
+  Future<Map<String, dynamic>> addGoodsData( GoodsPreset data ) async {
+    if (this._appdataPath==null) await _updateAppPath();
+
+    Map<String, dynamic> init;
+    File f = await File("${this._appdataPath}${this.goodsDBFileName}");
+    if (!f.existsSync()){
+      f.createSync();
+      init = GoodsPreset().getMapData();
+      init.addAll(data.getMapData());
+    }else{
+      init = jsonDecode(f.readAsStringSync());
+      init.addAll(data.getMapData());
+    }
+
+    f.writeAsStringSync(jsonEncode(init));
+    return {};
+  }
+
+  Future<Map<String, dynamic>> delGoodsData( int code ) async {
+    if (this._appdataPath == null) await _updateAppPath();
+
+    File f = await File("${this._appdataPath}${this.goodsDBFileName}");
+    if (!f.existsSync()){ return {'res' : 'err', 'value' : 'no Data'}; }
+    Map<String, dynamic> data = jsonDecode(f.readAsStringSync());
+    if (data.keys.toList().indexOf(code.toString()) == -1){
+      return {'res' : 'err', 'value' : 'no data with code'};
+    }
+    data.remove(code.toString());
+    f.writeAsStringSync(jsonEncode(data));
+    return {'res' : 'ok', 'value' : '$code is deleted'};
+    
+  }
+
+  test(){
+    print(GoodsPreset().getMapData().toString());
+  }
+
   // System Methods
 
   //update AppPath(must run first time)
@@ -70,4 +123,5 @@ class FileManager{
       'value' : value
     };
   }
+
 }
