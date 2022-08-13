@@ -23,7 +23,7 @@ class _PosRootPage_State extends State<PosRoot_Page> {
   ListTileWidget? _listTileWidget;
   TextEditingController _textEditingController = TextEditingController();
   String uuid = '';
-  List<Map<String, dynamic>> _selectedItems = [];
+  List<GoodsPreset> _selectedItems = [];
 
   // working methods
   void _clearItems(){
@@ -34,13 +34,23 @@ class _PosRootPage_State extends State<PosRoot_Page> {
   }
   
   Future<Map<String, dynamic>> _addItem(int code) async {
+    _textEditingController.clear();
     GoodsPreset? _preset = AppController.getGoodsData(code);
     if (_preset == null) {
       //no code data err
       return {'res' : 'err', 'value' : 'no Code Data'};
     }
     // 구매 항목 추가
-    return {};
+    for (var i in this._selectedItems){
+      if (i.code == code){
+        i.count ++;
+        return {'res' : 'ok', 'value' : 'add count for ${code}'};
+      }
+    }
+
+    this._selectedItems.add(_preset);
+    setState(() {});
+    return {'res' : 'ok', 'value' : 'new item added'};
   }
 
   Future<Map<String, dynamic>> _delItem(int itemCode) async{
@@ -117,10 +127,18 @@ class _PosRootPage_State extends State<PosRoot_Page> {
 
             // goods list view
             Expanded(
-              child: ListView(
-                children: [
-                  _listTileWidget!.getTest(),
-                ],
+              child: ListView.builder(
+                itemCount: this._selectedItems.length,
+                itemBuilder: (context, index) {
+                  GoodsPreset target = this._selectedItems[index];
+                  return ListTileWidget(size).getItemTile(
+                    Image.network(target.img),
+                    target.name, 
+                    target.count, 
+                    target.price * target.count, 
+                    target.code.toString()
+                  );
+                },
               ),
             ),
             Divider(height: 10, thickness: 2, indent: 10, endIndent: 10,),
