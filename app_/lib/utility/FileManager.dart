@@ -48,7 +48,7 @@ class FileManager{
   }
 
   // goods data
-  Future<Map<String, dynamic>> getGoodsDB() async {
+  Future<List<GoodsPreset>> getGoodsDB() async {
     if (this._appdataPath==null) await _updateAppPath();
     // read data
     File f = await File("${this._appdataPath}${this.goodsDBFileName}");
@@ -56,8 +56,16 @@ class FileManager{
       f.createSync();
       f.writeAsStringSync(jsonEncode(GoodsPreset().getMapData())); 
     }
-    print(f.readAsStringSync());
-    return {};
+
+    Map<String, dynamic> _mapTemp = jsonDecode(f.readAsStringSync());
+    List<GoodsPreset> _goodsData = [];
+    for (var i in _mapTemp.keys.toList()){
+      GoodsPreset _temp = GoodsPreset();
+      _temp.convertMapToClass(_mapTemp[i]);
+      _goodsData.add(_temp);
+    }
+
+    return _goodsData;
   }
 
   Future<Map<String, dynamic>> addGoodsData( GoodsPreset data ) async {
@@ -75,7 +83,7 @@ class FileManager{
     }
 
     f.writeAsStringSync(jsonEncode(init));
-    return {};
+    return {'res' : 'ok', 'value' : "${data.getMapData().toString()} is inserted"};
   }
 
   Future<Map<String, dynamic>> delGoodsData( int code ) async {

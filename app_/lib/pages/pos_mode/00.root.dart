@@ -139,8 +139,8 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                         )
                       ),
                       onPressed: () async {
-                        await FileManager()
-                        ..delGoodsData(999999);
+                        var c = await FileManager().getGoodsDB();
+                        print(c.length);
                       },
                       child: Text(
                         "결제 하기",

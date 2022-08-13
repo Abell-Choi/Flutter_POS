@@ -35,7 +35,7 @@ class GoodsPreset{
   }
 
   void convertMapToClass(Map<String, dynamic> data){
-    this.updateTime = data['updateTime'];
+    this.updateTime = DateTime.tryParse(data['updateTime']);
     this.code = data['code'];
     this.name = data['name'];
     this.count = data['count'];
