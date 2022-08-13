@@ -131,7 +131,7 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                         return;
                       }
 
-                      _addItem(parse!);
+                      _addItem(parse);
                     },
                     keyboardType: TextInputType.number,
                     autofocus: true,
@@ -159,7 +159,12 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                     target.name, 
                     target.count, 
                     target.price * target.count, 
-                    target.code.toString()
+                    target.code.toString(),
+                    (){
+                      int code = target.code;
+                      print(code);
+                      GetSnackBar(title: 'test',message: 'test',duration: Duration(seconds: 2),).show();
+                    }
                   );
                 },
               ),
@@ -181,7 +186,8 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                       _calcResult['title'], 
                       _calcResult['subTitleCount'], 
                       _calcResult['calcPrice'], 
-                      _calcResult['barcode']
+                      _calcResult['barcode'],
+                      (){}
                     ),
                   ),
                   Container(
@@ -254,7 +260,7 @@ class ListTileWidget{
     );
   }
 
-  Widget getDefaultListTitle(
+  Widget getCustomWidgets(
     Widget leading,
     Widget title,
     Widget subTitle,
@@ -272,9 +278,10 @@ class ListTileWidget{
     );
   }
 
-  Widget getItemTile(Widget icon, String name, int count, int allPrice, String uid){
+  Widget getItemTile(Widget icon, String name, int count, int allPrice, String uid, Function onTap){
     return Card(
       child: ListTile(
+        onTap: ()=>onTap(),
         leading: icon,
         title: Text(name),
         subtitle: Row(
