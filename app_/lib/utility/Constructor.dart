@@ -10,7 +10,7 @@ class LogPreset{
   List<GoodsPreset>? goodsPresets;
   List<String> _defaultKeyList = ['updateTime', 'uuid', 'goodsPresets'];
 
-  LogPreset(String this.uuid, List<GoodsPreset> this.goodsPresets){
+  LogPreset({String? this.uuid, List<GoodsPreset>? this.goodsPresets}){
     this.updateTime = DateTime.now();
   }
 
