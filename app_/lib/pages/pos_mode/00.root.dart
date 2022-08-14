@@ -247,7 +247,7 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                           );
                           return;
                         }
-                      },
+                      }, 
                       child: Text(
                         "결제 하기",
                         style: TextStyle(
