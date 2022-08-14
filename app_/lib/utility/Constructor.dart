@@ -18,23 +18,35 @@ class LogPreset{
     this.isKakaoPay ??= false;
   }
 
-  Map<String, dynamic> getMapData(){
-    if (this.goodsLists!.length == 0) {
-      return {
-        this.uuid!:{
-          'uuid' : this.uuid!,
-          'updateTime' : this.updateTime!.toString(),
-          'goodsLists' : [],
-          'isKakaoPay' : this.isKakaoPay,
-        }
-      };
+  int getAllItemCount(){
+    if (this.goodsLists!.length == 0){ return 0; }
+    int stack = 0;
+    for (var i in this.goodsLists!){
+      stack = stack + i.count;
     }
 
+    return stack;
+  }
+
+  int getItemTypeCount(){
+    return this.goodsLists!.length;
+  }
+
+  int getAllPrice(){
+    int stack = 0;
+    if (this.goodsLists!.length == 0) { return 0; }
+    for (var i in this.goodsLists!){
+      stack += i.getAllPrice();
+    }
+    return stack;
+  }
+
+  Map<String, dynamic> getMapData(){
     List<Map<String, dynamic>> _listTemp = [];
     for (var i in this.goodsLists!){
       _listTemp.add(i.getSimpleMapData());
     }
-    return {
+    Map<String, dynamic> _temp = {
       this.uuid! : {
         'uuid' : this.uuid!,
         'updateTime' : this.updateTime!.toString(),
@@ -42,6 +54,8 @@ class LogPreset{
         'isKakaoPay' : this.isKakaoPay,
       }
     };
+    print(_temp);
+    return _temp;
   }
 
   Map<String, dynamic> getSimpleMapData(){
@@ -55,6 +69,8 @@ class LogPreset{
     for (var i in this.goodsLists!){
       _temp['goodsLists'].add(i.getSimpleMapData());
     }
+
+    print(_temp);
 
     return _temp;
   }
@@ -96,6 +112,10 @@ class GoodsPreset{
   }){
     if (updateTime == null) { this.updateTime = DateTime.now(); }
     else { this.updateTime = updateTime; }
+  }
+
+  int getAllPrice(){
+    return this.count * this.price;
   }
 
   Map<String, dynamic> getMapData(){

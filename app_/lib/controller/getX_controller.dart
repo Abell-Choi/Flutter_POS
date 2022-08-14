@@ -26,6 +26,11 @@ class GetController extends GetxService {
     return this.saveSelLogData();
   }
 
+  List<LogPreset> getSelLogData(){
+    List<LogPreset> _log = List.from(this._selLogDB);
+    return _log;
+  }
+
   Future<Map<String, dynamic>> loadSelLogData() async {
     Map<String ,dynamic> _res = await FileManager().getSelLogFile();
     if (_res['res'] == 'err') {

@@ -2,12 +2,14 @@ import 'package:app_/pages/pos_mode/02.pay.dart';
 import 'package:app_/utility/Constructor.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
-// Controller
+//controller or utility
 import '../../controller/getX_controller.dart';
-import '../../utility/FileManager.dart';
+import '../../utility/WidgetUtility.dart';
+
+// page
+import '../calc_mode/00.root.dart';
 
 class PosRoot_Page extends StatefulWidget {
   const PosRoot_Page({super.key});
@@ -129,7 +131,14 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                 Container(  //Drawer Menu
                   child: IconButton(
                     icon: Icon(Icons.menu),
-                    onPressed: (){},
+                    onPressed: (){
+                      Get.to(
+                        ()=>Calc_Root_Page(),
+                        arguments: ListTileWidget,
+                        transition: Transition.leftToRight
+
+                      );
+                    },
                   ),
                 ),
                 // input controller 
@@ -239,12 +248,12 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                         }
                         int? payRes = await Get.to(()=>PayMentPage(), arguments: this._calcResult);
                         payRes ??= -2;
-                        if (payRes! >= 1){
-                          this._clearItems(); 
+                        if (payRes >= 1){
                           this.AppController.addSelLogData(
-                            this._selectedItems,
+                            List.from(this._selectedItems),
                             isKakaoPay: payRes==2?true:false
                           );
+                          this._clearItems(); 
                           return;
                         }
                       }, 
@@ -293,77 +302,3 @@ class _PosRootPage_State extends State<PosRoot_Page> {
 
 
 
-
-// design groups
-class ListTileWidget{
-  Size size;
-  ListTileWidget(Size this.size);
-  NumberFormat f = NumberFormat('###,###,###,###');
-
-  Widget getTest(){
-    return Card(
-      child: ListTile(
-        onTap: (){ 
-          GetSnackBar(
-            title: "test list view", 
-            message: 'hi',
-            duration: Duration(seconds: 10), 
-            snackPosition: SnackPosition.TOP,
-
-            ).show();
-          },
-        leading: Icon(Icons.read_more),
-        title: Text('Test ListTile Widget'),
-        subtitle: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('수량 : 100 개'),
-            Text('some barcode')
-          ],
-        ),
-        trailing: Text(
-          '500 Won'
-        ),
-      ),
-    );
-  }
-
-  Widget getCustomWidgets(
-    Widget leading,
-    Widget title,
-    Widget subTitle,
-    Widget trailing,
-    Function onTap,
-    Function onLongPress
-  ){
-    return Card(
-      child: ListTile(
-        leading:leading,
-        title: title,
-        subtitle: subTitle,
-        trailing: trailing,
-        onTap: () => onTap,
-        onLongPress: () => onLongPress,
-      ),
-    );
-  }
-
-  Widget getItemTile(Widget icon, String name, int count, int allPrice, String uid, Function onTap, Function onLongPress){
-    return Card(
-      child: ListTile(
-        onTap: ()=>onTap(),
-        onLongPress: ()=> onLongPress(),
-        leading: icon,
-        title: Text(name),
-        subtitle: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text("총 수량 : ${f.format(count)}"),
-            Text(uid)
-          ],
-        ),
-        trailing: Text("${f.format(allPrice)} ₩"),
-      ),
-    );
-  }
-}
