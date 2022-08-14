@@ -56,6 +56,11 @@ class _PosRootPage_State extends State<PosRoot_Page> {
     GoodsPreset? _preset = AppController.getGoodsData(code);
     if (_preset == null) {
       //no code data err
+      GetSnackBar(
+        title: 'Error',
+        message: '해당 코드를 찾을 수 없습니다.',
+        duration: Duration(seconds: 5),
+      ).show();
       return {'res' : 'err', 'value' : 'no Code Data'};
     }
     // 구매 항목 추가
@@ -223,6 +228,15 @@ class _PosRootPage_State extends State<PosRoot_Page> {
 
                       //결제 버튼
                       onPressed: () async {
+                        if (this._selectedItems.length <= 0){
+                          GetSnackBar(
+                            title: '오류',
+                            message: '계산할 항목이 없습니다.',
+                            duration: Duration(seconds: 5),
+                            snackPosition: SnackPosition.BOTTOM,
+                          ).show();
+                          return;
+                        }
                         int? payRes = await Get.to(()=>PayMentPage(), arguments: this._calcResult);
                         payRes ??= -2;
                         if (payRes! >= 1){ this._clearItems(); return;}
