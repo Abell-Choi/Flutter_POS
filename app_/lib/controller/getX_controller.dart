@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
@@ -10,14 +12,40 @@ class GetController extends GetxService {
   final isInitialized = false.obs;
   Map<String, dynamic>? _optionData;
   List<GoodsPreset> _goodsDB = [];
+  List<LogPreset> _selLogDB = [];
 
   // -------- PERMISSIONS -------- //
   // 권한 확인
-  Future<Map<String, dynamic>> _getPermission() async {
-    return {};
+
+  // -------- LOG WORKING -------- //
+
+  Future<Map<String, dynamic>> addSelLogData(List<GoodsPreset> selGoods, {bool? isKakaoPay}) async{
+    isKakaoPay??=false;
+    LogPreset _log = LogPreset(goodsLists: selGoods, isKakaoPay: isKakaoPay);
+    this._selLogDB.add(_log);
+    return this.saveSelLogData();
   }
 
-  
+  Future<Map<String, dynamic>> loadSelLogData() async {
+    Map<String ,dynamic> _res = await FileManager().getSelLogFile();
+    if (_res['res'] == 'err') {
+      return _res;
+    }
+
+    if (_res['res'] == 'no'){
+      await this.saveSelLogData();
+      return _res;
+    }
+
+    this._selLogDB = List.from(_res['value']);
+    return {'res' : 'ok', 'value' : 'data synced -> count -> ${this._selLogDB.length}'};
+  }
+
+  Future<Map<String, dynamic>> saveSelLogData() async {
+    if (this._selLogDB.length == 0) {this._selLogDB.add(LogPreset());}
+    return FileManager().overwrittingSelLogData(this._selLogDB);
+  }
+
   // -------- GOODS WORKING -------- //
 
   // goods 디비 업데이트
@@ -63,6 +91,7 @@ class GetController extends GetxService {
   Future<void> initialize() async {
     //임의의 초기화 루틴들 (await 걸어줘야함)
     await loadGoodsDB();
+    await loadSelLogData();
 
     isInitialized.value = true;
     return;

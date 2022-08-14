@@ -117,42 +117,61 @@ class FileManager{
     return {'res' : 'ok', 'value' : 'overwrite data'};
   }
 
-  test(){
-    print(GoodsPreset().getMapData().toString());
-  }
-
   // Log 관련
-  Future<Map<String, dynamic>> getSelLogFileData() async {
-    if (this._appdataPath == null) { await _updateAppPath(); }
+  //Log 파일 추출
+  Future<Map<String, dynamic>> getSelLogFile() async {
+    await _updateAppPath();
     String filePath = "${this._appdataPath}${this.selLogFileName}";
-    File f = await File(filePath);
+    File f = File(filePath);
     if (!f.existsSync()) { await this._createFile(this.selLogFileName); }
 
-    String jsonData = f.readAsStringSync();
-    try{
-      Map<String, dynamic> _MapData = jsonDecode(jsonData);
-      LogPreset _temp = LogPreset();
-      _temp.convertMapToClass(_MapData);
-      return {'res' : 'ok', 'value' : _temp}
-    }catch(e){
-      return {'res' : 'err','value' : "can't convert file -> $e",};
+    String readString = f.readAsStringSync();
+    if (readString == ''){ 
+      return {'res' : 'no', 'value' : 'no Data'};
     }
+
+    Map<String, dynamic> _logData;
+    try{
+      _logData = jsonDecode(readString);
+    }catch(e){
+      String errFile = 'logReadErrData_${DateTime.now().toString()}.json';
+      await this._createFile(errFile);
+      await this._writeFile(errFile, readString);
+      
+      return {
+        'res' : 'err',
+        'value' : "Can't convert json data -> $e\nerrFileName -> $errFile"
+      };
+    }
+    List<LogPreset> _logLists = [];
+    LogPreset _logTemp;
+    for (var i in _logData.keys.toList()){
+      _logTemp = LogPreset();
+      _logTemp.convertMapToClass(_logData[i]);
+      _logLists.add(_logTemp);
+    }
+
+    return {'res' : 'ok', 'value' : _logLists};
   }
 
-  Future<Map<String, dynamic>> overwrittingSelLogFileData(List<LogPreset> data) async {
-    if (this._appdataPath == null) { await _updateAppPath(); }
-    String filePath = "${this._appdataPath}${this.selLogFileName}";
-    File f = await File(filePath);
-    if (!f.existsSync()) { await this._createFile(this.selLogFileName); }
-
-    Map<String, dynamic> _mapTemp = {};
-    for (var i in data){
-      _mapTemp.addAll(i.getMapData());
+  // Log 저장
+  Future<Map<String, dynamic>> overwrittingSelLogData(List<LogPreset> logs) async {
+    await this._updateAppPath();
+    Map<String, dynamic> _logDatas = {};
+    Map<String, dynamic> _temp = {};
+    for (var i in logs){
+      _temp.clear();
+      _temp = Map.from(i.getMapData());
+      _logDatas.addAll(_temp);
     }
 
-    f.writeAsStringSync(jsonEncode(_mapTemp));
-    return {'res' : 'ok' , 'value' : 'save data \n${jsonEncode(_mapTemp)}'};
+    String fileName = "${this._appdataPath}${this.selLogFileName}";
+    File f = File(fileName);
+    if (!f.existsSync()) { this._createFile(this.selLogFileName);}
 
+    f.writeAsStringSync(jsonEncode(_logDatas));
+
+    return {'res' : 'ok', 'value' : 'override data \n${jsonEncode(_logDatas)}'};
   }
 
 
@@ -180,6 +199,15 @@ class FileManager{
     File file = File("${this._appdataPath}${fileName}");
     file.createSync();
     return {'res' : 'ok', 'value' : 'crreate file -> $fileName'};
+  }
+
+  Future<Map<String, dynamic>> _writeFile( String fileName, String data ) async {
+    await _updateAppPath();
+    File file = File("${this._appdataPath}${fileName}");
+    if (!file.existsSync()) { await this._createFile(fileName); }
+    file.writeAsStringSync(data);
+
+    return {'res' : 'ok', 'value' : 'write file : $fileName\nwrite data : $data'};
   }
 
   //retunner type

@@ -239,7 +239,14 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                         }
                         int? payRes = await Get.to(()=>PayMentPage(), arguments: this._calcResult);
                         payRes ??= -2;
-                        if (payRes! >= 1){ this._clearItems(); return;}
+                        if (payRes! >= 1){
+                          this._clearItems(); 
+                          this.AppController.addSelLogData(
+                            this._selectedItems,
+                            isKakaoPay: payRes==2?true:false
+                          );
+                          return;
+                        }
                       },
                       child: Text(
                         "결제 하기",
