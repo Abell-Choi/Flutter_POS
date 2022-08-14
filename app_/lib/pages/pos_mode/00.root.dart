@@ -1,6 +1,7 @@
 import 'package:app_/pages/pos_mode/02.pay.dart';
 import 'package:app_/utility/Constructor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
 
@@ -33,6 +34,8 @@ class _PosRootPage_State extends State<PosRoot_Page> {
     'barcode' : 'uid',//need fix that
     'calcPrice' : 0
   };
+
+  int _tempAmount = 0;
 
   // working methods
   void _clearItems(){
@@ -190,14 +193,12 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                     target.price * target.count, 
                     target.code.toString(),
                     (){
-                      int code = target.code;
-                      print(code);
+                      Get.dialog(
+                        this._AmountDialog(target.code));
                       //GetSnackBar(title: 'test',message: 'test',duration: Duration(seconds: 2),).show();
                     },
                     (){
-                      int code = target.code;
-                      print('asdf');
-                      Get.dialog(this._ListTileDialog(code));
+                      Get.dialog(this._ListTileDialog(target.code));
                     }
                   );
                 },
@@ -296,6 +297,67 @@ class _PosRootPage_State extends State<PosRoot_Page> {
           },
         )
       ],
+    );
+  }
+
+  // add del dialog
+  Widget _AmountDialog(int code){
+    TextEditingController _cont = TextEditingController();
+    GoodsPreset target = this._selectedItems[_getItemCodeToNum(code)];
+    _cont.text = target.count.toString();
+    return AlertDialog(
+      title: Text("수량 변경"),
+      content: Container(
+        height: size.height *.3,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: size.width *.2,
+              child: TextField(
+                  keyboardType: TextInputType.number,
+                  controller: _cont,
+                  textAlign: TextAlign.center,
+                  onChanged: (value) {
+                    if (int.tryParse(value) == null) { 
+                      print('null');
+                      return; 
+                    }
+                    
+                    setState(() {
+                      target.count = int.tryParse(value)!;
+                    });
+                  },
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                TextButton(
+                  onPressed: ()=>setState(() {
+                    target.count++;
+                    _cont.text = target.count.toString();
+                  }),
+                  child: Text("+"),
+                ),
+                TextButton(
+                  onPressed: ()=>setState(() {
+                    target.count--;
+                    _cont.text = target.count.toString();
+                  }),
+                  child: Text("-"),
+                )
+              ],
+            ),
+              ElevatedButton(
+                child: Text("확인"),
+                onPressed: (){Get.back(result: true);},
+              )
+          ],
+        ),
+      ),
     );
   }
 }
