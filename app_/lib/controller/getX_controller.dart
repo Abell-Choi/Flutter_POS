@@ -76,7 +76,7 @@ class GetController extends GetxService {
       }
     }
 
-    return {'res' : 'ok', 'value' : 'false'};
+    return {'res' : 'ok', 'value' : false};
   }
 
   GoodsPreset? getGoodsData(int code){
@@ -102,12 +102,12 @@ class GetController extends GetxService {
   }
 
   int getInvalidGoodsCount(){
-    return this._goodsDB!.length - this.getValidGoodsCount();
+    return this._goodsDB.length - this.getValidGoodsCount();
   }
 
   int getGoodsLastCode(){
     int _last = -1;
-    for (var i in this._goodsDB!){
+    for (var i in this._goodsDB){
       if (i.code > _last){
         _last = i.code;
       }
@@ -131,6 +131,23 @@ class GetController extends GetxService {
 
     this._goodsDB.add(_gd);
     this._saveGoodsDB();
+  }
+
+  bool setGoods(
+    int code,
+    String img,
+    String name,
+    int price
+  ){
+    var res = this.getGoodsData(code);
+    if (res == null){ return false; }
+    res.img = img;
+    res.name = name;
+    res.price = price;
+
+    _saveGoodsDB();
+
+    return true;
   }
 
   // -------- OTHER UTILITY -------- //

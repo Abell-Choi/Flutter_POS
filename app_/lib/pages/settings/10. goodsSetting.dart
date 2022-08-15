@@ -38,6 +38,16 @@ class _Goods_Setting_Page_State extends State<Goods_Setting_Page> {
   @override
   void initState() {
     super.initState();
+    refreshTextData();
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    refreshTextData();
+    super.setState(fn);
+  }
+
+  void refreshTextData(){
     List<GoodsPreset> _list = AppController.getAllGoodsData()!;
     this._totalText['v1'] = _list.length;
     this._totalText['v2'] = AppController.getValidGoodsCount().toString();
@@ -176,7 +186,9 @@ class _Goods_Setting_Page_State extends State<Goods_Setting_Page> {
                             _target.price,
                             DateFormat("E HH:mm:ss")
                                 .format(_target.updateTime!),
-                            () {},
+                            () {
+                              Get.dialog(this._settingGoodsDialog(_target));
+                            },
                             () {});
                       }
                       return ListTileWidget(size).getItemDisableInfoTile(
@@ -196,37 +208,38 @@ class _Goods_Setting_Page_State extends State<Goods_Setting_Page> {
 
   // AddGoods Dialog
   Widget _addGoodsDialog() {
-    //int _code = AppController.getGoodsLastCode() + 1;
     return this._defaultDialog(
       '상품 추가',
-      (){
-        //add data
-        AppController.addGoods(
-          int.parse(_controller[0].text), 
-          _controller[2].text, 
-          _controller[1].text, 
-          int.parse(_controller[3].text)
-        );
-        setState(() {});
-      }
+      0,
     );
   }
 
-  Widget _settingGoodsDialog(int code) {
-    return AlertDialog();
+  Widget _settingGoodsDialog(GoodsPreset _goods) {
+    return this._defaultDialog(
+      '상품 수정',
+      1,
+      code: _goods.code.toString(),
+      name: _goods.name,
+      url: _goods.img,
+      price: _goods.price.toString()
+    );
   }
 
   Widget _defaultDialog(String title,
-      Function onTap,
+      int type,
       {String? code, String? url, String? name, String? price}) {
-    code ??= (this.AppController.getGoodsLastCode() + 1).toString();
-    url ??= 'http://cdn.gameple.co.kr/news/photo/202111/200377_200534_83.gif';
-    name ??= '';
-    price ??= '';
-    for (int i = 0; i < _controller.length; i++) {
-      _controller[i].text = [code, name, url, price][i];
+    if (type == 0){
+      code ??= (this.AppController.getGoodsLastCode() + 1).toString();
+      name ??= '';
+      url ??= 'http://cdn.gameple.co.kr/news/photo/202111/200377_200534_83.gif';
+      price ??= '';
     }
 
+    for (int i = 0 ; i < _controller.length ; i++){
+      this._controller[i].text = [code!, name!, url!, price!][i];
+    }
+    
+    String errLog = '';
     return AlertDialog(
         title: Text(title),
         content: Container(
@@ -283,17 +296,40 @@ class _Goods_Setting_Page_State extends State<Goods_Setting_Page> {
                         controller: _controller[3],
                         keyboardType: TextInputType.number,
                     ),
-                  )
+                  ),
                 ],
               ),
+              Text("${errLog}"),
             ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: (){
-              onTap();
+              int res = type==0?createGoodsData():setGoodsData(code!);
+              if (res == -1){
+                //err
+                GetSnackBar(
+                  title: 'Error',
+                  message: '항목중 빠진구간이 있습니다.',
+                  duration: Duration(seconds: 5),
+                ).show();
+                return;
+              }
+
+              if (res == -2){
+                GetSnackBar(
+                  title: 'Error',
+                  message: '코드는 수정할 수 없습니다!',
+                  duration: Duration(seconds: 5),
+                ).show();
+                this._controller[0].text = code!.toString();
+                return;
+              }
+              setState(() { });
               Get.back();
+              return;
+
             },
             child: Text("확인")
           ),
@@ -306,5 +342,56 @@ class _Goods_Setting_Page_State extends State<Goods_Setting_Page> {
         ],
         
       );
+  }
+  
+  int createGoodsData(){
+    //code, name, url, price
+    if (
+      this._controller[0].text == ''||
+      this._controller[1].text == ''||
+      this._controller[2].text == ''||
+      this._controller[3].text == ''
+    ){
+      return -1;
+    }
+
+    if (AppController.existGoodsData(
+      int.parse(this._controller[0].text)
+    )['value'] == true){
+      return -2;
+    }
+
+    AppController.addGoods(
+      int.parse(this._controller[0].text), 
+      this._controller[2].text, 
+      this._controller[1].text, 
+      int.parse(this._controller[3].text)
+    );
+
+    return 1;
+
+  }
+
+  int setGoodsData(String lastCode){
+    if (
+    this._controller[0].text == ''||
+    this._controller[1].text == ''||
+    this._controller[2].text == ''||
+    this._controller[3].text == ''){
+      return -1;
+    }
+
+    if (lastCode != this._controller[0].text){
+      return -2;
+    }
+
+    this.AppController.setGoods(
+      int.parse(this._controller[0].text), 
+      this._controller[2].text,
+      this._controller[1].text,
+      int.parse(this._controller[3].text,)
+    );
+
+    return 1;
   }
 }
