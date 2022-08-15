@@ -1,5 +1,7 @@
+import 'package:app_/utility/Constructor.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 //Controller
 import '../../controller/getX_controller.dart';
@@ -16,8 +18,6 @@ class _Goods_Setting_Page_State extends State<Goods_Setting_Page> {
   final AppController = Get.put(GetController());
   Size size = Size(0,0);
 
-
-
   Map<String, dynamic> _totalText = {
     't1': '전체 상품 개수',
     't2': '활성화',
@@ -28,6 +28,15 @@ class _Goods_Setting_Page_State extends State<Goods_Setting_Page> {
   };
 
   
+  @override
+  void initState() {
+    super.initState();
+    List<GoodsPreset> _list = AppController.getAllGoodsData()!;
+    this._totalText['v1'] = _list.length;
+    this._totalText['v2'] = AppController.getValidGoodsCount().toString();
+    this._totalText['v3'] = AppController.getInvalidGoodsCount().toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
@@ -74,7 +83,7 @@ class _Goods_Setting_Page_State extends State<Goods_Setting_Page> {
                               endIndent: 10,
                             ),
                             Flexible(
-                                child: CustomText(this._totalText['v1'], 0)
+                                child: CustomText(this._totalText['v1'].toString(), 0)
                                     .getText()),
                           ],
                         ),
@@ -99,7 +108,7 @@ class _Goods_Setting_Page_State extends State<Goods_Setting_Page> {
                                 endIndent: 10,
                               ),
                               Flexible(
-                                child: CustomText(this._totalText['v2'], 0)
+                                child: CustomText(this._totalText['v2'].toString(), 0)
                                     .getText(),
                               ),
                             ],
@@ -124,7 +133,7 @@ class _Goods_Setting_Page_State extends State<Goods_Setting_Page> {
                                 endIndent: 10,
                               ),
                               Flexible(
-                                  child: CustomText(this._totalText['v3'], 0)
+                                  child: CustomText(this._totalText['v3'].toString(), 0)
                                       .getText()),
                             ],
                           )),
@@ -133,6 +142,23 @@ class _Goods_Setting_Page_State extends State<Goods_Setting_Page> {
                 ),
               ),
             ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: AppController.getAllGoodsData()!.length,
+                itemBuilder: (context, i) {
+                  GoodsPreset _target = AppController.getAllGoodsData()![i];
+                  return ListTileWidget(size).getItemInfoTile(
+                    Image.network(_target.img), 
+                    _target.name, 
+                    _target.code, 
+                    _target.price, 
+                    DateFormat("E HH:mm:ss").format(_target.updateTime!),
+                    (){}, 
+                    (){}
+                  );
+                },
+              ),
+            )
           ]
         ),
       )

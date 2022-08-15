@@ -174,15 +174,13 @@ class _Calc_Root_State extends State<Calc_Root_Page> {
               itemCount: this._logs.length,
               itemBuilder: (context, index) {
                 LogPreset target = this._logs[index];
-                String time =
-                    DateFormat("E HH:mm:ss").format(target.updateTime!);
                 return ListTileWidget(size).getLogTile(
                     Icon(Icons.check_box),
                     target.uuid!.split('-')[0],
                     target.getAllItemCount(),
                     target.getItemTypeCount(),
                     target.getAllPrice(),
-                    time, () {
+                    target.updateTime!, () {
                   Get.dialog(_showInformation(index));
                 }, () {});
               },

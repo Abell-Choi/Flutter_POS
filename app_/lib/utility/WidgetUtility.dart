@@ -60,6 +60,22 @@ class ListTileWidget {
       ),
     );
   }
+  Widget getItemInfoTile(Widget icon, String name, int count, int allPrice,
+      String uid, Function onTap, Function onLongPress) {
+    return Card(
+      child: ListTile(
+        onTap: () => onTap(),
+        onLongPress: () => onLongPress(),
+        leading: icon,
+        title: Text(name),
+        subtitle: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [Text("아이템 코드: ${f.format(count)}"), Text(uid)],
+        ),
+        trailing: Text("${f.format(allPrice)} ₩"),
+      ),
+    );
+  }
 
   Widget getLogTile(
       Widget icon,
@@ -67,7 +83,7 @@ class ListTileWidget {
       int allItemCount,
       int itemTypeCount,
       int allPrice,
-      String datetime,
+      DateTime datetime,
       Function onTap,
       Function onLongPress) {
     return Card(
@@ -93,7 +109,24 @@ class ListTileWidget {
             Text('총 가격 : ${allPrice}')
           ],
         ),
-        trailing: Text(datetime),
+        trailing: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              "${DateFormat("E").format(datetime)}",
+              style: TextStyle(
+                fontSize: 24
+              ),
+            ),
+            Text(
+              "${DateFormat("HH:mm:ss").format(datetime)}",
+              style: TextStyle(
+                fontWeight: FontWeight.bold
+              ),  
+            )
+          ],
+        ),
       ),
     );
   }

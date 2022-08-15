@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -135,7 +133,8 @@ class GoodsPreset {
         'img': this.img,
         'name': this.name,
         'count': this.count,
-        'price': this.price
+        'price': this.price,
+        'isValid' : this.isValid
       }
     };
   }
@@ -147,7 +146,8 @@ class GoodsPreset {
       'img': this.img,
       'name': this.name,
       'count': this.count,
-      'price': this.price
+      'price': this.price,
+      'isValid' : this.isValid
     };
   }
 
@@ -163,5 +163,6 @@ class GoodsPreset {
     this.name = data['name'];
     this.count = data['count'];
     this.price = data['price'];
+    this.isValid = data['isValid'];
   }
 }

@@ -86,6 +86,25 @@ class GetController extends GetxService {
     return null;
   }
 
+  List<GoodsPreset>? getAllGoodsData(){
+    return this._goodsDB;
+  }
+
+  int getValidGoodsCount(){
+    int stack = 0;
+    for (var i in this._goodsDB){
+      if (i.isValid == false){
+        continue;
+      }
+      stack++;
+    }
+    return stack;
+  }
+
+  int getInvalidGoodsCount(){
+    return this._goodsDB!.length - this.getValidGoodsCount();
+  }
+
   // -------- OTHER UTILITY -------- //
   String getVersion(){
     return this.version;

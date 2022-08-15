@@ -345,7 +345,7 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                       title: Text("상품 설정 하기"),
                       onTap: () async {
                         Scaffold.of(context).closeDrawer();
-                        Get.to(() => Goods_Setting_Page());
+                        await Get.to(() => Goods_Setting_Page());
                       });
                   },
                 ),
