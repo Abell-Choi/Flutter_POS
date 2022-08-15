@@ -80,6 +80,16 @@ class _PosRootPage_State extends State<PosRoot_Page> {
       ).show();
       return {'res': 'err', 'value': 'no Code Data'};
     }
+
+    if (!_preset.isValid){
+      GetSnackBar(
+        title: 'Error',
+        message: '해당 제품은 판매중단 상태입니다..',
+        duration: Duration(seconds: 5),
+      ).show();
+      return {'res': 'err', 'value': 'not valid data'};
+      
+    }
     // 구매 항목 추가
     for (var i in this._selectedItems) {
       if (i.code == code) {
@@ -346,6 +356,7 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                       onTap: () async {
                         Scaffold.of(context).closeDrawer();
                         await Get.to(() => Goods_Setting_Page());
+                        setState(() { });
                       });
                   },
                 ),
@@ -356,7 +367,8 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                       title: Text("어플 설정"),
                       onTap: () async {
                         Scaffold.of(context).closeDrawer();
-                        Get.to(() => Setting_Page());
+                        await Get.to(() => Setting_Page());
+                        setState(() { });
                       });
                   },
                 ),
@@ -392,7 +404,7 @@ class _PosRootPage_State extends State<PosRoot_Page> {
     );
   }
 
-  // add del dialog
+  // Amount dialog
   Widget _AmountDialog(int code) {
     TextEditingController _cont = TextEditingController();
     GoodsPreset target = this._selectedItems[_getItemCodeToNum(code)];

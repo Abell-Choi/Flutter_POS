@@ -198,6 +198,7 @@ class _Goods_Setting_Page_State extends State<Goods_Setting_Page> {
                                     TextButton(
                                       onPressed: (){
                                         _target.isValid = false;
+                                        AppController.saveGoodsDB();
                                         setState(() { });
                                         Get.back();
                                       },
@@ -233,6 +234,7 @@ class _Goods_Setting_Page_State extends State<Goods_Setting_Page> {
                               actions: [
                                 TextButton(onPressed: (){
                                   _target.isValid = true;
+                                  AppController.saveGoodsDB();
                                   setState(() { });
                                   Get.back();
                                 }, child: Text("네")),

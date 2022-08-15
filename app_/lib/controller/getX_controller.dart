@@ -63,7 +63,7 @@ class GetController extends GetxService {
     return {'res' : 'ok', 'value' : 'update db\ndb Count -> ${this._goodsDB.length}'};
   }
 
-  Future<Map<String, dynamic>> _saveGoodsDB() async {
+  Future<Map<String, dynamic>> saveGoodsDB() async {
     if (this._goodsDB.length == 0) { this._goodsDB.add(GoodsPreset()); }
     return FileManager().overwrittingGoodsData(this._goodsDB);
   }
@@ -130,7 +130,7 @@ class GetController extends GetxService {
     );
 
     this._goodsDB.add(_gd);
-    this._saveGoodsDB();
+    this.saveGoodsDB();
   }
 
   bool setGoods(
@@ -145,7 +145,7 @@ class GetController extends GetxService {
     res.name = name;
     res.price = price;
 
-    _saveGoodsDB();
+    saveGoodsDB();
 
     return true;
   }
