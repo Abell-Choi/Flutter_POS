@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 // custom calsses
 import '../utility/Constructor.dart';
@@ -19,9 +20,10 @@ class GetController extends GetxService {
 
   // -------- LOG WORKING -------- //
 
-  Future<Map<String, dynamic>> addSelLogData(List<GoodsPreset> selGoods, {bool? isKakaoPay}) async{
+  Future<Map<String, dynamic>> addSelLogData(List<GoodsPreset> selGoods, {String? uuid, bool? isKakaoPay}) async{
     isKakaoPay??=false;
-    LogPreset _log = LogPreset(goodsLists: selGoods, isKakaoPay: isKakaoPay);
+    uuid??=Uuid().v4();
+    LogPreset _log = LogPreset(goodsLists: selGoods, uuid: uuid, isKakaoPay: isKakaoPay);
     this._selLogDB.add(_log);
     return this.saveSelLogData();
   }

@@ -71,6 +71,12 @@ class _Calc_Root_State extends State<Calc_Root_Page> {
     return Scaffold(
       backgroundColor: Colors.blue[100],
       appBar: AppBar(
+        title: Text(
+          "결제 내역",
+          style: TextStyle(
+            color: Colors.black
+          ),
+        ),
         shadowColor: Color.fromARGB(0, 0, 0, 0),
         backgroundColor: Colors.blue[100],
       ),
@@ -169,10 +175,10 @@ class _Calc_Root_State extends State<Calc_Root_Page> {
               itemBuilder: (context, index) {
                 LogPreset target = this._logs[index];
                 String time =
-                    DateFormat("dd일 HH:mm:ss").format(target.updateTime!);
+                    DateFormat("E HH:mm:ss").format(target.updateTime!);
                 return ListTileWidget(size).getLogTile(
                     Icon(Icons.check_box),
-                    target.uuid!,
+                    target.uuid!.split('-')[0],
                     target.getAllItemCount(),
                     target.getItemTypeCount(),
                     target.getAllPrice(),

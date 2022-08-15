@@ -115,6 +115,7 @@ class _PosRootPage_State extends State<PosRoot_Page> {
 
     this._calcResult['subTitleCount'] = count;
     this._calcResult['calcPrice'] = price;
+    this._calcResult['barcode'] = this.uuid.split('-')[0];
   }
 
   @override
@@ -252,7 +253,8 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                         if (payRes >= 1){
                           this.AppController.addSelLogData(
                             List.from(this._selectedItems),
-                            isKakaoPay: payRes==2?true:false
+                            uuid : uuid,
+                            isKakaoPay: payRes==2?true:false,
                           );
                           this._clearItems(); 
                           return;
