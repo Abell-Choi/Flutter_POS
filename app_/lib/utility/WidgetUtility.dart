@@ -98,3 +98,21 @@ class ListTileWidget {
     );
   }
 }
+
+class CustomText{
+  String _text;
+  int _type;
+  CustomText(String this._text, int this._type);
+
+  Widget getText(){
+    return Text(
+      _text,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontWeight: _type==0?FontWeight.bold:FontWeight.w500,
+        fontSize: _type==0?24:20,
+        color: _type==0?Colors.black : Color.fromARGB(255, 42, 42, 42)
+      ),
+    );
+  }
+}
