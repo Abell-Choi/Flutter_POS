@@ -81,7 +81,7 @@ class ListTileWidget {
       String uid, Function onTap, Function onLongPress){
     return Card(
       child: ListTile(
-        enabled: false,
+        tileColor: Colors.grey,
         onTap: () => onTap(),
         onLongPress: () => onLongPress(),
         leading: icon,

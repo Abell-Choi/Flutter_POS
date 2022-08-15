@@ -189,7 +189,28 @@ class _Goods_Setting_Page_State extends State<Goods_Setting_Page> {
                             () {
                               Get.dialog(this._settingGoodsDialog(_target));
                             },
-                            () {});
+                            () {
+                              Get.dialog(
+                                AlertDialog(
+                                  title: Text("알 림"),
+                                  content: Text("해당 항목을 비활성화 하시겠습니까?"),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: (){
+                                        _target.isValid = false;
+                                        setState(() { });
+                                        Get.back();
+                                      },
+                                      child: Text("예"),
+                                    ),
+                                    TextButton(
+                                      onPressed: (){Get.back();},
+                                      child: Text("아니요"),
+                                    )
+                                  ],
+                                )
+                              );
+                            });
                       }
                       return ListTileWidget(size).getItemDisableInfoTile(
                           Image.network(_target.img),
@@ -197,8 +218,30 @@ class _Goods_Setting_Page_State extends State<Goods_Setting_Page> {
                           _target.code,
                           _target.price,
                           DateFormat("E HH:mm:ss").format(_target.updateTime!),
-                          () {},
-                          () {});
+                          () {
+                            GetSnackBar(
+                              title: 'Error',
+                              message: '해당 항목은 Disabled 되었습니다.',
+                              duration: Duration(seconds: 5),
+                              snackPosition: SnackPosition.TOP,
+                            ).show();
+                          },
+                          () {
+                            Get.dialog(AlertDialog(
+                              title: Text("알림"),
+                              content: Text("해당 상품을 판매가능으로 하시겠습니까?"),
+                              actions: [
+                                TextButton(onPressed: (){
+                                  _target.isValid = true;
+                                  setState(() { });
+                                  Get.back();
+                                }, child: Text("네")),
+
+                                TextButton(onPressed: (){Get.back();},
+                                child: Text("아니요"),)
+                              ],
+                            ));
+                          });
                     },
                   ),
                 )
