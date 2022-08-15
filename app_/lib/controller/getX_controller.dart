@@ -11,6 +11,7 @@ import '../utility/FileManager.dart';
 class GetController extends GetxService {
   static GetController get to => Get.find();
   final isInitialized = false.obs;
+  String version = "0.0.1b";
   Map<String, dynamic>? _optionData;
   List<GoodsPreset> _goodsDB = [];
   List<LogPreset> _selLogDB = [];
@@ -83,6 +84,11 @@ class GetController extends GetxService {
       if (i.code == code){ return i; }
     }
     return null;
+  }
+
+  // -------- OTHER UTILITY -------- //
+  String getVersion(){
+    return this.version;
   }
 
 

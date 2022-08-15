@@ -105,6 +105,7 @@ class GoodsPreset {
   String name;
   int count;
   int price;
+  bool isValid;
 
   GoodsPreset(
       {updateTime = null,
@@ -113,7 +114,8 @@ class GoodsPreset {
           'http://cdn.gameple.co.kr/news/photo/202111/200377_200534_83.gif',
       this.name = 'test',
       this.count = 1,
-      this.price = 1000}) {
+      this.price = 1000,
+      this.isValid=true}) {
     if (updateTime == null) {
       this.updateTime = DateTime.now();
     } else {

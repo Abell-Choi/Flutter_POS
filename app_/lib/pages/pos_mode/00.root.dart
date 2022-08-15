@@ -11,6 +11,8 @@ import '../../utility/WidgetUtility.dart';
 
 // page
 import '../calc_mode/00.root.dart';
+import '../settings/00. default_settings.dart';
+import '../settings/10. goodsSetting.dart';
 
 class PosRoot_Page extends StatefulWidget {
   const PosRoot_Page({super.key});
@@ -20,42 +22,52 @@ class PosRoot_Page extends StatefulWidget {
 }
 
 class _PosRootPage_State extends State<PosRoot_Page> {
+  GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
+
   final AppController = Get.put(GetController());
-  
-  Size size = Size(0,0);
+
+  Size size = Size(0, 0);
   ListTileWidget? _listTileWidget;
   TextEditingController _textEditingController = TextEditingController();
   String uuid = '';
   List<GoodsPreset> _selectedItems = [];
   Map<String, dynamic> _calcResult = {
-    'title' : '전체 가격',
-    'subTitleStr' : '총 수량',
-    'subTitleCount' : 0,
-    'barcode' : 'uid',//need fix that
-    'calcPrice' : 0
+    'title': '전체 가격',
+    'subTitleStr': '총 수량',
+    'subTitleCount': 0,
+    'barcode': 'uid', //need fix that
+    'calcPrice': 0
   };
 
   int _tempAmount = 0;
 
   // working methods
-  void _clearItems(){
+  void _clearItems({bool init = false}) {
     this._selectedItems.clear();
     this.uuid = Uuid().v4();
-    print ('new uuid created -> ${this.uuid}');
+    print('new uuid created -> ${this.uuid}');
+    init
+        ? GetSnackBar(
+            title: "notice",
+            message: '새로운 uuid 갱신 -> ${this.uuid}',
+            duration: Duration(seconds: 5),
+            snackPosition: SnackPosition.TOP,
+          ).show()
+        : null;
     setState(() {});
     return;
   }
 
-  int _getItemCodeToNum(int code){
-    for (int i = 0 ; i < this._selectedItems.length ; i++){
-      if (code == this._selectedItems[i].code){
+  int _getItemCodeToNum(int code) {
+    for (int i = 0; i < this._selectedItems.length; i++) {
+      if (code == this._selectedItems[i].code) {
         return i;
       }
     }
 
     return -1;
   }
-  
+
   Future<Map<String, dynamic>> _addItem(int code) async {
     _textEditingController.clear();
     GoodsPreset? _preset = AppController.getGoodsData(code);
@@ -66,32 +78,34 @@ class _PosRootPage_State extends State<PosRoot_Page> {
         message: '해당 코드를 찾을 수 없습니다.',
         duration: Duration(seconds: 5),
       ).show();
-      return {'res' : 'err', 'value' : 'no Code Data'};
+      return {'res': 'err', 'value': 'no Code Data'};
     }
     // 구매 항목 추가
-    for (var i in this._selectedItems){
-      if (i.code == code){
-        i.count ++;
+    for (var i in this._selectedItems) {
+      if (i.code == code) {
+        i.count++;
         setState(() {});
-        return {'res' : 'ok', 'value' : 'add count for ${code}'};
+        return {'res': 'ok', 'value': 'add count for ${code}'};
       }
     }
 
     this._selectedItems.add(_preset);
     setState(() {});
-    return {'res' : 'ok', 'value' : 'new item added'};
+    return {'res': 'ok', 'value': 'new item added'};
   }
 
-  Future<Map<String, dynamic>> _delItem(int itemCode) async{
+  Future<Map<String, dynamic>> _delItem(int itemCode) async {
     int arrayNum = this._getItemCodeToNum(itemCode);
-    if (arrayNum == -1){ return {'res' : 'err', 'value' : 'some err'};}
+    if (arrayNum == -1) {
+      return {'res': 'err', 'value': 'some err'};
+    }
     this._selectedItems.removeAt(arrayNum);
-    setState(() { });
+    setState(() {});
 
-    return {'res' : 'ok', 'value' : 'del from $arrayNum'};
+    return {'res': 'ok', 'value': 'del from $arrayNum'};
   }
-  
-  Future<Map<String, dynamic>> _setCountItem(int itemCode, int count) async{
+
+  Future<Map<String, dynamic>> _setCountItem(int itemCode, int count) async {
     //구매 항목 갯수 수정
     return {};
   }
@@ -108,7 +122,7 @@ class _PosRootPage_State extends State<PosRoot_Page> {
     super.setState(fn);
     int count = 0;
     int price = 0;
-    for (var i in this._selectedItems){
+    for (var i in this._selectedItems) {
       count = count + i.count;
       price = price + (i.count * i.price);
     }
@@ -125,6 +139,7 @@ class _PosRootPage_State extends State<PosRoot_Page> {
 
     return Scaffold(
       backgroundColor: Colors.blue[100],
+      drawer: _customDrawer(context),
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -132,34 +147,31 @@ class _PosRootPage_State extends State<PosRoot_Page> {
           children: [
             Row(
               children: [
-                Container(  //Drawer Menu
-                  child: IconButton(
-                    icon: Icon(Icons.menu),
-                    onPressed: (){
-                      Get.to(
-                        ()=>Calc_Root_Page(),
-                        arguments: ListTileWidget,
-                        transition: Transition.leftToRight
-
-                      );
-                    },
-                  ),
+                Builder(
+                  //Drawer Menu
+                  builder: (context) {
+                    return IconButton(
+                        icon: Icon(Icons.menu),
+                        onPressed: () {
+                          Scaffold.of(context).openDrawer();
+                        });
+                  },
                 ),
-                // input controller 
+                // input controller
                 Container(
-                  height: size.height *.075,
+                  height: size.height * .075,
                   color: Colors.blue[100],
-                  width: size.width *.7,
+                  width: size.width * .7,
                   padding: EdgeInsets.all(8),
                   child: TextField(
                     controller: _textEditingController,
-                    onChanged: (value){
-                      if (value.length < 6){
+                    onChanged: (value) {
+                      if (value.length < 6) {
                         return;
                       }
-                      
+
                       int? parse = int.tryParse(value);
-                      if (parse == null) { 
+                      if (parse == null) {
                         //int error
                         return;
                       }
@@ -170,11 +182,12 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                     autofocus: true,
                   ),
                 ),
-                
+
                 //others icons (just some... option?)
-                Expanded( //Scan Mode
+                Expanded(
+                  //Scan Mode
                   child: IconButton(
-                    onPressed: (){},
+                    onPressed: () {},
                     icon: Icon(Icons.ad_units),
                   ),
                 )
@@ -188,58 +201,55 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                 itemBuilder: (context, index) {
                   GoodsPreset target = this._selectedItems[index];
                   return ListTileWidget(size).getItemTile(
-                    Image.network(target.img),
-                    target.name, 
-                    target.count, 
-                    target.price * target.count, 
-                    target.code.toString(),
-                    (){
-                      Get.dialog(
-                        this._AmountDialog(target.code));
-                      //GetSnackBar(title: 'test',message: 'test',duration: Duration(seconds: 2),).show();
-                    },
-                    (){
-                      Get.dialog(this._ListTileDialog(target.code));
-                    }
-                  );
+                      Image.network(target.img),
+                      target.name,
+                      target.count,
+                      target.price * target.count,
+                      target.code.toString(), () {
+                    Get.dialog(this._AmountDialog(target.code));
+                    //GetSnackBar(title: 'test',message: 'test',duration: Duration(seconds: 2),).show();
+                  }, () {
+                    Get.dialog(this._ListTileDialog(target.code));
+                  });
                 },
               ),
             ),
-            Divider(height: 10, thickness: 2, indent: 10, endIndent: 10,),
-            
+            Divider(
+              height: 10,
+              thickness: 2,
+              indent: 10,
+              endIndent: 10,
+            ),
+
             // calc result, pay
             Container(
-              height: size.height *.2,
+              height: size.height * .2,
               color: Colors.red[100],
               width: size.width,
               child: Column(
                 children: [
-                  Container(  //Calc result
-                    child: ListTileWidget(
-                      size
-                    ).getItemTile(
-                      Icon(Icons.abc), 
-                      _calcResult['title'], 
-                      _calcResult['subTitleCount'], 
-                      _calcResult['calcPrice'], 
-                      _calcResult['barcode'],
-                      (){},
-                      (){}
-                    ),
+                  Container(
+                    //Calc result
+                    child: ListTileWidget(size).getItemTile(
+                        Icon(Icons.abc),
+                        _calcResult['title'],
+                        _calcResult['subTitleCount'],
+                        _calcResult['calcPrice'],
+                        _calcResult['barcode'],
+                        () {},
+                        () {}),
                   ),
                   Container(
-                    width: size.width *.99,
-                    height: size.height *.09,
+                    width: size.width * .99,
+                    height: size.height * .09,
                     child: ElevatedButton(
                       style: ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll(
-                          Colors.lightBlue[300]
-                        )
-                      ),
+                          backgroundColor:
+                              MaterialStatePropertyAll(Colors.lightBlue[300])),
 
                       //결제 버튼
                       onPressed: () async {
-                        if (this._selectedItems.length <= 0){
+                        if (this._selectedItems.length <= 0) {
                           GetSnackBar(
                             title: '오류',
                             message: '계산할 항목이 없습니다.',
@@ -248,25 +258,25 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                           ).show();
                           return;
                         }
-                        int? payRes = await Get.to(()=>PayMentPage(), arguments: this._calcResult);
+                        int? payRes = await Get.to(() => PayMentPage(),
+                            arguments: this._calcResult);
                         payRes ??= -2;
-                        if (payRes >= 1){
+                        if (payRes >= 1) {
                           this.AppController.addSelLogData(
-                            List.from(this._selectedItems),
-                            uuid : uuid,
-                            isKakaoPay: payRes==2?true:false,
-                          );
-                          this._clearItems(); 
+                                List.from(this._selectedItems),
+                                uuid: uuid,
+                                isKakaoPay: payRes == 2 ? true : false,
+                              );
+                          this._clearItems(init: true);
                           return;
                         }
-                      }, 
+                      },
                       child: Text(
                         "결제 하기",
                         style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black
-                        ),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black),
                       ),
                     ),
                   )
@@ -279,22 +289,102 @@ class _PosRootPage_State extends State<PosRoot_Page> {
     );
   }
 
+  //custom Drawer
+  Widget _customDrawer(BuildContext context) {
+    return Drawer(
+        child: Container(
+      padding: EdgeInsets.all(8),
+      child: Column(
+        children: [
+          SizedBox(
+            height: size.height * .075,
+          ),
+          Container(
+            child: Row(
+              children: [
+                Image.network(
+                  'http://cdn.gameple.co.kr/news/photo/202111/200377_200534_83.gif',
+                  fit: BoxFit.contain,
+                  width: size.width * .18,
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "몰?루 POS",
+                      style: TextStyle(fontSize: 24),
+                    ),
+                    Text("${AppController.getVersion()}")
+                  ],
+                )
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              children: [
+                Builder(  //결제 기록 보기
+                  builder: (context) {
+                    return ListTile(
+                      leading: Icon(Icons.checklist),
+                      title: Text("결제 기록 보기"),
+                      onTap: () async {
+                        Scaffold.of(context).closeDrawer();
+                        Get.to(() => Calc_Root_Page());
+                      });
+                  },
+                ),
+                Builder(  // 상품 설정
+                  builder: (context) {
+                    return ListTile(
+                      leading: Icon(Icons.gif_box),
+                      title: Text("상품 설정 하기"),
+                      onTap: () async {
+                        Scaffold.of(context).closeDrawer();
+                        Get.to(() => Goods_Setting_Page());
+                      });
+                  },
+                ),
+                Builder(  // 설정
+                  builder: (context) {
+                    return ListTile(
+                      leading: Icon(Icons.settings),
+                      title: Text("어플 설정"),
+                      onTap: () async {
+                        Scaffold.of(context).closeDrawer();
+                        Get.to(() => Setting_Page());
+                      });
+                  },
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    ));
+  }
+
   //Dialog
-  Widget _ListTileDialog(int code){
+  Widget _ListTileDialog(int code) {
     return AlertDialog(
       title: Text('항목 삭제'),
-      content: Text("정말로 ${this.AppController.getGoodsData(code)!.name}\n항목을 삭제하시겠습니까?"),
+      content: Text(
+          "정말로 ${this.AppController.getGoodsData(code)!.name}\n항목을 삭제하시겠습니까?"),
       actions: [
         TextButton(
           child: Text('삭제'),
-          onPressed: (){
+          onPressed: () {
             this._delItem(code);
             Get.back(result: true);
           },
         ),
         TextButton(
           child: Text('닫기'),
-          onPressed: (){
+          onPressed: () {
             Get.back(result: false);
           },
         )
@@ -303,34 +393,34 @@ class _PosRootPage_State extends State<PosRoot_Page> {
   }
 
   // add del dialog
-  Widget _AmountDialog(int code){
+  Widget _AmountDialog(int code) {
     TextEditingController _cont = TextEditingController();
     GoodsPreset target = this._selectedItems[_getItemCodeToNum(code)];
     _cont.text = target.count.toString();
     return AlertDialog(
       title: Text("수량 변경"),
       content: Container(
-        height: size.height *.3,
+        height: size.height * .3,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              width: size.width *.2,
+              width: size.width * .2,
               child: TextField(
-                  keyboardType: TextInputType.number,
-                  controller: _cont,
-                  textAlign: TextAlign.center,
-                  onChanged: (value) {
-                    if (int.tryParse(value) == null) { 
-                      print('null');
-                      return; 
-                    }
-                    
-                    setState(() {
-                      target.count = int.tryParse(value)!;
-                    });
-                  },
+                keyboardType: TextInputType.number,
+                controller: _cont,
+                textAlign: TextAlign.center,
+                onChanged: (value) {
+                  if (int.tryParse(value) == null) {
+                    print('null');
+                    return;
+                  }
+
+                  setState(() {
+                    target.count = int.tryParse(value)!;
+                  });
+                },
               ),
             ),
             Row(
@@ -338,14 +428,14 @@ class _PosRootPage_State extends State<PosRoot_Page> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 TextButton(
-                  onPressed: ()=>setState(() {
+                  onPressed: () => setState(() {
                     target.count++;
                     _cont.text = target.count.toString();
                   }),
                   child: Text("+"),
                 ),
                 TextButton(
-                  onPressed: ()=>setState(() {
+                  onPressed: () => setState(() {
                     target.count--;
                     _cont.text = target.count.toString();
                   }),
@@ -353,16 +443,15 @@ class _PosRootPage_State extends State<PosRoot_Page> {
                 )
               ],
             ),
-              ElevatedButton(
-                child: Text("확인"),
-                onPressed: (){Get.back(result: true);},
-              )
+            ElevatedButton(
+              child: Text("확인"),
+              onPressed: () {
+                Get.back(result: true);
+              },
+            )
           ],
         ),
       ),
     );
   }
 }
-
-
-
