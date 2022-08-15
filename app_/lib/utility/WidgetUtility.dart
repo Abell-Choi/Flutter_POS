@@ -77,6 +77,24 @@ class ListTileWidget {
     );
   }
 
+  Widget getItemDisableInfoTile(Widget icon, String name, int count, int allPrice,
+      String uid, Function onTap, Function onLongPress){
+    return Card(
+      child: ListTile(
+        enabled: false,
+        onTap: () => onTap(),
+        onLongPress: () => onLongPress(),
+        leading: icon,
+        title: Text(name),
+        subtitle: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [Text("아이템 코드: ${f.format(count)}"), Text(uid)],
+        ),
+        trailing: Text("${f.format(allPrice)} ₩"),
+      ),
+    );
+  }
+
   Widget getLogTile(
       Widget icon,
       String uuid,

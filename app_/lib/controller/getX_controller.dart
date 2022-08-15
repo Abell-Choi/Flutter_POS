@@ -105,6 +105,34 @@ class GetController extends GetxService {
     return this._goodsDB!.length - this.getValidGoodsCount();
   }
 
+  int getGoodsLastCode(){
+    int _last = -1;
+    for (var i in this._goodsDB!){
+      if (i.code > _last){
+        _last = i.code;
+      }
+    }
+
+    return _last;
+  }
+
+  void addGoods(
+    int code,
+    String img,
+    String name,
+    int price,
+  ){
+    GoodsPreset _gd = GoodsPreset(
+      code: code,
+      img : img,
+      name : name,
+      price:  price
+    );
+
+    this._goodsDB.add(_gd);
+    this._saveGoodsDB();
+  }
+
   // -------- OTHER UTILITY -------- //
   String getVersion(){
     return this.version;
