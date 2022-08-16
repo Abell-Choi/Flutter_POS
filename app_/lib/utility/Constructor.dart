@@ -1,7 +1,16 @@
+import 'package:app_/utility/DBManager.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
-class OptionData {}
+class OptionData {
+  DateTime? updateTime;
+  bool isLogDBMode = false;
+  bool isGoodsDBMode = false;
+  String _dbUri = 'http://127.0.0.1';
+  String _dbID = 'root';
+  String _dbPW = 'root1234';
+  DBManager? _db;
+}
 
 class LogPreset {
   DateTime? updateTime;
