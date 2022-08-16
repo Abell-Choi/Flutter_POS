@@ -50,7 +50,7 @@ class GetController extends GetxService {
   }
 
   Future<Map<String, dynamic>> saveSelLogData() async {
-    if (this._selLogDB.length == 0) {this._selLogDB.add(LogPreset(uuid: 'test'));}
+    if (this._selLogDB.length == 0) {this._selLogDB.add(LogPreset(uuid: 'test-test-test-test-test'));}
     return FileManager().overwrittingSelLogData(this._selLogDB);
   }
 
