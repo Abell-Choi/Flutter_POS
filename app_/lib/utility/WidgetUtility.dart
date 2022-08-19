@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
+import './TimeUtility.dart';
 
 // design groups
 class ListTileWidget {
@@ -127,7 +128,15 @@ class ListTileWidget {
             Text('총 가격 : ${allPrice}')
           ],
         ),
-        trailing: Column(
+        trailing: Text(
+          TimeUtility().getBeforeString(datetime, target2:DateTime.now()),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18
+          ),
+        ),
+        // 시간
+        /*trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -144,7 +153,7 @@ class ListTileWidget {
               ),  
             )
           ],
-        ),
+        ),*/
       ),
     );
   }
