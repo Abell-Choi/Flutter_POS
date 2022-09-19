@@ -2,6 +2,7 @@ import 'package:app_/utility/DBManager.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
+
 class OptionData {
   DateTime? updateTime;
   bool isLogDBMode = false;
@@ -10,6 +11,7 @@ class OptionData {
   String _dbID = 'root';
   String _dbPW = 'root1234';
   DBManager? _db;
+
 }
 
 class LogPreset {
