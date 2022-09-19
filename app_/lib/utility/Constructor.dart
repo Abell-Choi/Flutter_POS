@@ -20,6 +20,7 @@ class LogPreset {
   List<GoodsPreset>? goodsLists;
   bool? isKakaoPay;
 
+
   LogPreset({this.updateTime, this.uuid, this.goodsLists, this.isKakaoPay}) {
     this.updateTime ??= DateTime.now();
     this.uuid ??= Uuid().v4();
