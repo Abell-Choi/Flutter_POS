@@ -1,15 +1,18 @@
+import 'package:app_/pages/root_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart'; 
+import 'package:intl/intl.dart';
 
 // Controller
 import './controller/getX_controller.dart';
 
 // root page
-import './pages/pos_mode/00.root.dart';
+import './pages/root_page.dart' as rootPage;
 
 void main() {
-  runApp(GetMaterialApp(home: MyApp(),));
+  runApp(GetMaterialApp(
+    home: MyApp(),
+  ));
 }
 
 class MyApp extends StatefulWidget {
@@ -25,16 +28,16 @@ class _MainPage extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     //Future Builder든 뭐든 사용해야함
-    return Obx(() { 
-          print(AppController.isInitialized.value);
-          if (AppController.isInitialized.value) {
-            return PosRoot_Page();
-          } else {
-            print('running');
-            return _Initializing();
-          }
-        }
-    );  }
+    return Obx(() {
+      print(AppController.isInitialized.value);
+      if (AppController.isInitialized.value) {
+        return rootPage.Root_Page();
+      } else {
+        print('running');
+        return _Initializing();
+      }
+    });
+  }
 }
 
 class _Initializing extends StatelessWidget {
@@ -49,7 +52,15 @@ class _Initializing extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CircularProgressIndicator(),
-            Text('Initializing...')
+            Padding(
+              padding: EdgeInsets.all(10),
+              child: Text(
+                "Initializing...",
+                style: TextStyle(
+                  fontSize: 24
+                ),  
+              ),
+            )
           ],
         ),
       ),

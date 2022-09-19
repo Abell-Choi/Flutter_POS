@@ -1,180 +1,167 @@
-import 'package:app_/utility/DBManager.dart';
-import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
+import 'dart:convert';
+import 'dart:ffi';
 
+import 'package:app_/Utility/constructor.dart';
+import 'package:intl/intl.dart'; 
 
-class OptionData {
-  DateTime? updateTime;
-  bool isLogDBMode = false;
-  bool isGoodsDBMode = false;
-  String _dbUri = 'http://127.0.0.1';
-  String _dbID = 'root';
-  String _dbPW = 'root1234';
-  DBManager? _db;
+/**
+ * Item 구조
+ * int id -> 아이디
+ * String name -> 이름
+ * int price -> 가격
+ * String description -> 상품설명
+ * String image_url -> 상품 이미지 url
+ * float discount -> 할인율
+ */
 
-}
+class ItemMeta {
+  int id;
+  String? name;
+  int? price;
+  String? description;
+  String? image_url;
+  double? discount;
+  String? discount_reason;
 
-class LogPreset {
-  DateTime? updateTime;
-  String? uuid;
-  List<GoodsPreset>? goodsLists;
-  bool? isKakaoPay;
-
-
-  LogPreset({this.updateTime, this.uuid, this.goodsLists, this.isKakaoPay}) {
-    this.updateTime ??= DateTime.now();
-    this.uuid ??= Uuid().v4();
-    this.goodsLists ??= <GoodsPreset>[];
-    this.isKakaoPay ??= false;
+  ItemMeta(this.id, {this.name, this.price, this.description, this.image_url, this.discount, this.discount_reason}){
+    this.name ??= 'None';
+    this.price ??= 1000;
+    this.description ??= 'None';
+    this.image_url ??= 'https://ac-p2.namu.la/20211108s1/d6554599261fbeb2df1fdb5d79a36984eb072812976cd5f8d3b7a4783b9607b5.png';
+    this.discount = 0;
+    this.discount_reason ??= 'None'; 
   }
 
-  int getAllItemCount() {
-    if (this.goodsLists!.length == 0) {
-      return 0;
-    }
-    int stack = 0;
-    for (var i in this.goodsLists!) {
-      stack = stack + i.count;
-    }
-
-    return stack;
-  }
-
-  int getItemTypeCount() {
-    return this.goodsLists!.length;
-  }
-
-  int getAllPrice() {
-    int stack = 0;
-    if (this.goodsLists!.length == 0) {
-      return 0;
-    }
-    for (var i in this.goodsLists!) {
-      stack += i.getAllPrice();
-    }
-    return stack;
-  }
-
-  Map<String, dynamic> getMapData() {
-    List<Map<String, dynamic>> _listTemp = [];
-    for (var i in this.goodsLists!) {
-      _listTemp.add(i.getSimpleMapData());
-    }
-    Map<String, dynamic> _temp = {
-      this.uuid!: {
-        'uuid': this.uuid!,
-        'updateTime': this.updateTime!.toString(),
-        'goodsLists': _listTemp,
-        'isKakaoPay': this.isKakaoPay,
-      }
-    };
-    print(_temp);
-    return _temp;
-  }
-
-  Map<String, dynamic> getSimpleMapData() {
-    Map<String, dynamic> _temp = {
-      'uuid': this.uuid!,
-      'updateTime': this.updateTime!.toString(),
-      'goodsLists': [],
-      'isKakaoPay': this.isKakaoPay
+  String toJsonString(){
+    Map<String, dynamic> data = {
+      "name" : this.name,
+      "price" : this.price,
+      "description" : this.description,
+      "image_url" : this.image_url,
+      "discount" : this.discount,
+      "discount_reason" : this.discount_reason
     };
 
-    for (var i in this.goodsLists!) {
-      _temp['goodsLists'].add(i.getSimpleMapData());
-    }
-
-    print(_temp);
-
-    return _temp;
-  }
-
-  void convertMapToClass(Map<String, dynamic> logMap) {
-    Map<String, dynamic> _copy;
-    if (logMap.keys.toList().length == 1) {
-      _copy = Map.from(logMap);
-      logMap = Map.from(_copy[_copy.keys.toList()[0]]);
-    }
-
-    this.updateTime = DateTime.tryParse(logMap['updateTime']);
-    this.uuid = logMap['uuid'];
-    this.goodsLists = <GoodsPreset>[];
-    this.isKakaoPay = logMap['isKakaoPay'];
-    for (var i in logMap['goodsLists']) {
-      GoodsPreset _gd = GoodsPreset();
-      _gd.convertMapToClass(i);
-      this.goodsLists!.add(_gd);
-    }
+    return jsonEncode(data);
   }
 }
 
-class GoodsPreset {
-  DateTime? updateTime;
-  int code;
-  String img;
-  String name;
-  int count;
-  int price;
-  bool isValid;
 
-  GoodsPreset(
-      {updateTime = null,
-      this.code = -1,
-      this.img =
-          'http://cdn.gameple.co.kr/news/photo/202111/200377_200534_83.gif',
-      this.name = 'test',
-      this.count = 1,
-      this.price = 1000,
-      this.isValid=true}) {
-    if (updateTime == null) {
-      this.updateTime = DateTime.now();
-    } else {
-      this.updateTime = updateTime;
-    }
+/**
+ * 상품 스택 구조
+ ** DateTime updateDate (추가 날째),
+ ** ItemMeta item 아이템 대상,
+ ** Int value : 아이템 수량,
+ */
+class ItemStack{
+  DateTime? update_date;
+  ItemMeta item;
+  int? value;
+
+  ItemStack(this.item, {this.update_date, this.value}){
+    this.update_date ??= DateTime.now();
+    this.value ??= 1;
   }
 
-  int getAllPrice() {
-    return this.count * this.price;
+  /**
+   * 아이템의 총 가격을 알려줍니다 (할인 된 가격)
+   ** @return Double
+   */
+  double getItemPrice(){
+    //all item price 
+    double price = this.item.price!.toDouble() * this.value!.toDouble();
+    price = this.item.discount! == 0 ? price : price - (this.item.discount!.toDouble() * this.value!.toDouble());
+    return price;
+  }
+  
+  /**
+   * discount 가 계산되지 않은 상품의 총 값을 반환합니다.
+   ** @return Double
+   */
+  double getRawPrice(){
+    return this.item.price!.toDouble() * this.value!.toDouble();
   }
 
-  Map<String, dynamic> getMapData() {
-    return {
-      this.code.toString(): {
-        'updateTime': this.updateTime.toString(),
-        'code': this.code,
-        'img': this.img,
-        'name': this.name,
-        'count': this.count,
-        'price': this.price,
-        'isValid' : this.isValid
-      }
+  /**
+   * discount 된 값만 계산해서 반환합니다.
+   ** @return Double 
+   */
+  double getDiscountPrice(){
+    return this.item.discount!.toDouble() * this.value!.toDouble();
+  }
+
+  String toJsonString(){
+    Map<String, dynamic> data = {
+      "update_date" : this.update_date,
+      "item" : this.item.toJsonString(),
+      "value" : this.value,
     };
+
+    return jsonEncode(data);
+  }
+}
+
+
+/**
+ * 영수 처리 및 기록을 위한 함수
+ **DateTime _updateDate = 작성 시간 (고정),
+ **List<ItemStack> _itemStack = 판매된 아이템 종류,
+ **boolean _isKakaoPay = 카카오 페이결제 여부
+ */
+class Receipt{
+  final DateTime _updateDate = DateTime.now();
+  final List<ItemStack> _itemStack;
+  bool _isKakaoPay;
+
+  Receipt(this._itemStack, this._isKakaoPay){
   }
 
-  Map<String, dynamic> getSimpleMapData() {
-    return {
-      'updateTime': this.updateTime.toString(),
-      'code': this.code,
-      'img': this.img,
-      'name': this.name,
-      'count': this.count,
-      'price': this.price,
-      'isValid' : this.isValid
-    };
-  }
 
-  void convertMapToClass(Map<String, dynamic> data) {
-    if (data.keys.toList().length == 1) {
-      Map<String, dynamic> _copy = Map.from(data);
-      data = Map.from(_copy[_copy.keys.toList()[0]]);
+  /**
+   * 해당 클래스의 총 판매액 (할인율 X)
+   */
+  double getAllRawPrice(){
+    double priceStack = 0;
+    for (ItemStack i in this._itemStack){
+      priceStack += i.getRawPrice();
     }
 
-    this.updateTime = DateTime.tryParse(data['updateTime']);
-    this.code = data['code'];
-    this.img = data['img'];
-    this.name = data['name'];
-    this.count = data['count'];
-    this.price = data['price'];
-    this.isValid = data['isValid'];
+    return priceStack;
+  }
+
+  /**
+   * 해당 클래스의 총 할인액 
+   */
+  double getAllDiscount(){
+    double discountStack = 0;
+    for (ItemStack i in this._itemStack){
+      discountStack += i.getDiscountPrice();
+    }
+    return discountStack;
+  }
+
+  /**
+   * 해당 클래스의 할인율이 포함된 판매액
+   */
+  double getAllPrice(){
+    return this.getAllRawPrice() - this.getAllDiscount();
+  }
+
+  /**
+   * Json String 화
+   */
+  String toJsonString(){
+    // itemStack List to Json
+    List<String> itemStackString = [];
+    for (ItemStack i in _itemStack){
+      itemStackString.add(i.toJsonString());
+    }
+    Map<String, dynamic> data = {
+      "_updateTime" : this._updateDate.toString(),
+      "_itemStack" : jsonEncode(itemStackString),
+      "_isKakaoPay" : this._isKakaoPay
+    };
+
+    return jsonEncode(data);
   }
 }
