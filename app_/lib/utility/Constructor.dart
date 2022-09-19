@@ -27,6 +27,7 @@ class LogPreset {
     this.goodsLists ??= <GoodsPreset>[];
     this.isKakaoPay ??= false;
   }
+  
 
   int getAllItemCount() {
     if (this.goodsLists!.length == 0) {
