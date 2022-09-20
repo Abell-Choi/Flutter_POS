@@ -110,10 +110,11 @@ class ItemStack{
  */
 class Receipt{
   final DateTime _updateDate = DateTime.now();
+  final String _code;
   final List<ItemStack> _itemStack;
   bool _isKakaoPay;
 
-  Receipt(this._itemStack, this._isKakaoPay){
+  Receipt(this._code, this._itemStack, this._isKakaoPay){
   }
 
 
@@ -157,9 +158,10 @@ class Receipt{
       itemStackString.add(i.toJsonString());
     }
     Map<String, dynamic> data = {
-      "_updateTime" : this._updateDate.toString(),
+      "code" : this._code,
       "_itemStack" : jsonEncode(itemStackString),
-      "_isKakaoPay" : this._isKakaoPay
+      "_isKakaoPay" : this._isKakaoPay,
+      "_updateTime" : this._updateDate.toString(),
     };
 
     return jsonEncode(data);
