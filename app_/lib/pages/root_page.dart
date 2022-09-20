@@ -16,6 +16,9 @@ class Root_Page extends StatefulWidget {
 }
 
 class _Root_PageState extends State<Root_Page> {
+  final AppController = Get.put(GetController()); // App Controller -> with GetX
+  
+  // Global Var
   Size size = Size(0, 0);
   var _txtController = TextEditingController();
 
@@ -148,10 +151,8 @@ class ReceiptContainer {
     List<Map<String, dynamic>> items = <Map<String, dynamic>>[];
     for (int i = 0; i < _items.length; i++) {
       var result = getItemContainer(i);
-      if (result == null) {
-        continue;
-      }
-      items.add(result!);
+      if (result == null) { continue; }
+      items.add(result);
     }
 
     return items;
