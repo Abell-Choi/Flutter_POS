@@ -4,6 +4,12 @@ import 'dart:ffi';
 import 'package:app_/Utility/constructor.dart';
 import 'package:intl/intl.dart'; 
 
+
+/**
+ * ItemMeta < ItemStack < Receipt
+ * 상품, 상품 구매목록, 영수증
+ */
+
 /**
  * Item 구조
  * int id -> 아이디
@@ -13,7 +19,6 @@ import 'package:intl/intl.dart';
  * String image_url -> 상품 이미지 url
  * float discount -> 할인율
  */
-
 class ItemMeta {
   int id;
   String? name;
@@ -114,9 +119,7 @@ class Receipt{
   final List<ItemStack> _itemStack;
   bool _isKakaoPay;
 
-  Receipt(this._code, this._itemStack, this._isKakaoPay){
-  }
-
+  Receipt(this._code, this._itemStack, this._isKakaoPay);
 
   /**
    * 해당 클래스의 총 판매액 (할인율 X)
